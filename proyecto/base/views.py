@@ -11,15 +11,17 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from .models import Tarea
 
+# Vista de logueo
 class Logueo(LoginView):
     template_name = 'base/login.html'
     field = '__all__'
     # reedireccionar al usario autenticado
     redirect_authenticated_user = True
-    # cuando el usuario sea logueeado ira directamente a la pgina de tareas
+    # cuando el usuario sea logueeado ira directamente a la pagina de tareas
     def get_success_url(self):
         return reverse_lazy('tareas')
 
+# Vista de registro
 class PaginaRegistro(FormView):
     template_name = 'base/registro.html'
     form_class = UserCreationForm
@@ -36,7 +38,10 @@ class PaginaRegistro(FormView):
         if self.request.user.is_authenticated:
             return redirect('tareas')
         return super(PaginaRegistro, self).get(*args,**kwargs)
+    
+
 # LoginRequiredMixin va a hacer es restringir si no tienes permiso para verlo
+# ListView es una vista que nos permite ver una lista de objetos
 class ListaPendientes(LoginRequiredMixin, ListView):
     model = Tarea    
     context_object_name = 'tareas'
@@ -55,11 +60,12 @@ class ListaPendientes(LoginRequiredMixin, ListView):
         context['valor_buscado'] = valor_buscado
         return context
 
+# DetalleTarea es una vista que nos permite ver los detalles de la tarea
 class DetalleTarea(LoginRequiredMixin, DetailView):
     model = Tarea
     context_object_name = 'tarea'
 
-
+# CrearTarea es una vista que nos permite crear una tarea
 class CrearTarea(LoginRequiredMixin, CreateView):
     model = Tarea
     fields = ['titulo', 'description', 'completo']
@@ -72,6 +78,7 @@ class CrearTarea(LoginRequiredMixin, CreateView):
         form.instance.usuario = self.request.user
         return super(CrearTarea, self).form_valid(form)
 
+# EditarTarea es una vista que nos permite editar una tarea
 class EditarTarea(LoginRequiredMixin, UpdateView):
     model = Tarea
     fields = ['titulo', 'description', 'completo']
@@ -79,6 +86,7 @@ class EditarTarea(LoginRequiredMixin, UpdateView):
     # mediante un evento
     success_url = reverse_lazy('tareas') 
 
+# EliminarTarea es una vista que nos permite eliminar una tarea
 class EliminarTarea(LoginRequiredMixin, DeleteView):
     model = Tarea
     context_object_name = 'tarea'
